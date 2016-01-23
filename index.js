@@ -17,9 +17,21 @@ function Join (opts) {
   self.dex = hindex(self.log, self.idb, function (row, next) {
     if (row.value === undefined) return next()
     var res = self.map(row)
-    if (res === undefined || res.key === undefined) return next()
-    var key = Buffer(res.key).toString('hex') + '!' + row.key
-    self.xdb.put(key, res.value, next)
+    if (res === undefined
+    || (res.key === undefined && !Array.isArray(res))) {
+      return next()
+    }
+    if (Array.isArray(res)) {
+      self.xdb.batch(res.map(function (r) {
+        return {
+          key: Buffer(r.key).toString('hex') + '!' + row.key,
+          value: r.value
+        }
+      }), next)
+    } else {
+      var key = Buffer(res.key).toString('hex') + '!' + row.key
+      self.xdb.put(key, res.value, next)
+    }
   })
 }
 

@@ -1,3 +1,3 @@
-# hyperlog-join-index
+# hyperlog-join
 
 
