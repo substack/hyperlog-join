@@ -22,15 +22,19 @@ function Join (opts) {
       return next()
     }
     if (Array.isArray(res)) {
-      self.xdb.batch(res.map(function (r) {
-        return {
-          key: Buffer(r.key).toString('hex') + '!' + row.key,
-          value: r.value
-        }
-      }), next)
+      self.xdb.batch(res.map(map), next)
     } else {
-      var key = Buffer(res.key).toString('hex') + '!' + row.key
-      self.xdb.put(key, res.value, next)
+      var rec = map(res)
+      if (rec.type === 'del') {
+        self.xdb.del(rec.key, next)
+      } else self.xdb.put(rec.key, rec.value, next)
+    }
+    function map (r) {
+      return {
+        type: r.type || 'put',
+        key: Buffer(r.key).toString('hex') + '!' + row.key,
+        value: r.value
+      }
     }
   })
 }
