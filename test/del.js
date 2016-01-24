@@ -12,7 +12,11 @@ test('del', function (t) {
     map: function (row) {
       var v = row.value
       if (v.del) {
-        return { type: 'del', keys: [ v.changeset, v.key ] }
+        return {
+          type: 'del',
+          rowKey: v.key,
+          key: v.changeset
+        }
       }
       if (v.changeset) return { key: v.changeset, value: v.id }
     }
