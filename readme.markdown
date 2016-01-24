@@ -58,6 +58,10 @@ The mapping function accepts a `row` argument from the hyperlog and should
 return a single object with `key` and `value` properties or an array of
 `key`/`value` objects.
 
+To delete relations, the mapping function should return an object with
+`type='del'`, a `key` specifying the foreign key as in the put case, and a
+`rowKey` of the hyperlog key for the row that inserted the original relation.
+
 ## var stream = j.list(key, cb)
 
 Look up a list of values from the mapping function by their `key`.
