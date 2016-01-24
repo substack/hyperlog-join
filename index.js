@@ -17,8 +17,8 @@ function Join (opts) {
   self.dex = hindex(self.log, self.idb, function (row, next) {
     if (row.value === undefined) return next()
     var res = self.map(row)
-    if (res === undefined
-    || (res.key === undefined && !Array.isArray(res))) {
+    if (res === undefined || (res.key === undefined
+    && res.keys === undefined && !Array.isArray(res))) {
       return next()
     }
     if (Array.isArray(res)) {
@@ -30,10 +30,17 @@ function Join (opts) {
       } else self.xdb.put(rec.key, rec.value, next)
     }
     function map (r) {
-      return {
-        type: r.type || 'put',
-        key: Buffer(r.key).toString('hex') + '!' + row.key,
-        value: r.value
+      if (r.type === 'del') {
+        return {
+          type: 'del',
+          key: Buffer(r.keys[0]).toString('hex') + '!' + r.keys[1]
+        }
+      } else {
+        return {
+          type: 'put',
+          key: Buffer(r.key).toString('hex') + '!' + row.key,
+          value: r.value
+        }
       }
     }
   })
