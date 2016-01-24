@@ -1,6 +1,6 @@
 {
   "name": "hyperlog-join",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "relational joins over a hyperlog",
   "main": "index.js",
   "scripts": {
