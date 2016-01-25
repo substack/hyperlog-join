@@ -90,12 +90,19 @@ Join.prototype.list = function (key, opts, cb) {
 
 Join.prototype.relations = function (opts) {
   var self = this
+  if (!opts) opts = {}
   var stream = through.obj(write, end)
   self.dex.ready(function () {
-    var r = self.xdb.createReadStream({
-      gt: 'r!',
-      lt: 'r!~'
-    })
+    var xopts = {}
+    if (opts.gt) xopts.gt = 'r!' + opts.gt
+    else if (opts.gte) xopts.gte = 'r!' + opts.gte
+    else xopts.gt = 'r!'
+
+    if (opts.lt) xopts.lt = 'r!' + opts.lt
+    else if (opts.lte) xopts.lte = 'r!' + opts.lte
+    else xopts.lt = 'r!~'
+
+    var r = self.xdb.createReadStream(xopts)
     r.on('error', stream.emit.bind(stream, 'error'))
     r.pipe(stream)
   })
