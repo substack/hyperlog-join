@@ -102,6 +102,8 @@ Join.prototype.relations = function (opts) {
     else if (opts.lte) xopts.lte = 'r!' + opts.lte
     else xopts.lt = 'r!~'
 
+    if (opts.limit !== undefined) xopts.limit = opts.limit
+
     var r = self.xdb.createReadStream(xopts)
     r.on('error', stream.emit.bind(stream, 'error'))
     r.pipe(stream)
