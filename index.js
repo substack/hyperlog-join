@@ -20,24 +20,31 @@ function Join (opts) {
     if (res === undefined || (res.key === undefined && !Array.isArray(res))) {
       return next()
     }
-    if (Array.isArray(res)) {
-      self.xdb.batch(res.map(map), next)
-    } else {
-      var rec = map(res)
-      if (rec.type === 'del') {
-        self.xdb.del(rec.key, next)
-      } else self.xdb.put(rec.key, rec.value, next)
+    var batch = ops(Array.isArray(res) ? res : [res])
+    self.xdb.batch(batch, next)
+
+    function ops (rows) {
+      var batch = rows.map(map)
+      var rels = {}
+      rows.forEach(function (row) {
+        rels[row.key] = true
+      })
+      Object.keys(rels).forEach(function (key) {
+        batch.push({ type: 'put', key: 'r!' + key, value: 0 })
+      })
+      return batch
     }
+
     function map (r) {
       if (r.type === 'del') {
         return {
           type: 'del',
-          key: Buffer(r.key).toString('hex') + '!' + r.rowKey
+          key: 'h!' + Buffer(r.key).toString('hex') + '!' + r.rowKey
         }
       } else {
         return {
           type: 'put',
-          key: Buffer(r.key).toString('hex') + '!' + row.key,
+          key: 'h!' + Buffer(r.key).toString('hex') + '!' + row.key,
           value: r.value
         }
       }
@@ -55,7 +62,7 @@ Join.prototype.list = function (key, opts, cb) {
   var rows = cb ? [] : null
 
   var stream = through.obj(write, end)
-  var hkey = Buffer(key).toString('hex')
+  var hkey = 'h!' + Buffer(key).toString('hex')
   self.dex.ready(function () {
     var r = self.xdb.createReadStream({
       gt: hkey + '!',
@@ -69,7 +76,7 @@ Join.prototype.list = function (key, opts, cb) {
 
   function write (row, enc, next) {
     var rec = {
-      key: row.key.replace(/^[^!]+!/,''),
+      key: row.key.replace(/^h![^!]+!/,''),
       value: row.value
     }
     if (rows) rows.push(rec)
@@ -77,6 +84,27 @@ Join.prototype.list = function (key, opts, cb) {
   }
   function end (next) {
     if (cb) cb(null, rows)
+    next()
+  }
+}
+
+Join.prototype.relations = function (opts) {
+  var self = this
+  var stream = through.obj(write, end)
+  self.dex.ready(function () {
+    var r = self.xdb.createReadStream({
+      gt: 'r!',
+      lt: 'r!~'
+    })
+    r.on('error', stream.emit.bind(stream, 'error'))
+    r.pipe(stream)
+  })
+  return readonly(stream)
+
+  function write (row, enc, next) {
+    next(null, row.key.replace(/^r!/,''))
+  }
+  function end (next) {
     next()
   }
 }
