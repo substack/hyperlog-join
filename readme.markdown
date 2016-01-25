@@ -71,6 +71,15 @@ results with the `cb(err, nodes)` callback. Each object in the results has the
 `key` of the original hyperlog document and the `value` set in the mapping
 function.
 
+## var stream = j.relations(opts)
+
+Return a readable stream of existing relations, the foreign keys set by
+`row.key` in the mapping function.
+
+These results can be filtered according to leveldb range options: `opts.lt`,
+`opts.gt`, `opts.lte`, and `opts.gte` and limited in quantity with
+`opts.limit`.
+
 # install
 
 ```
