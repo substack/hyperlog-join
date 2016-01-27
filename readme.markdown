@@ -80,6 +80,12 @@ These results can be filtered according to leveldb range options: `opts.lt`,
 `opts.gt`, `opts.lte`, and `opts.gte` and limited in quantity with
 `opts.limit`.
 
+## j.on('error', function (err) {})
+
+Handle errors from the underlying [hyperlog-index][1] with the `'error'` event.
+
+[1]: https://npmjs.com/package/hyperlog-index
+
 # install
 
 ```

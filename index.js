@@ -2,12 +2,16 @@ var hindex = require('hyperlog-index')
 var sub = require('subleveldown')
 var through = require('through2')
 var readonly = require('read-only-stream')
+var EventEmitter = require('events').EventEmitter
+var inherits = require('inherits')
 
 module.exports = Join
+inherits(Join, EventEmitter)
 
 function Join (opts) {
   if (!(this instanceof Join)) return new Join(opts)
   var self = this
+  EventEmitter.call(self)
   self.map = opts.map
   self.log = opts.log
   self.idb = sub(opts.db, 'i')
@@ -50,6 +54,7 @@ function Join (opts) {
       }
     }
   })
+  self.dex.on('error', function (err) { self.emit('error', err) })
 }
 
 Join.prototype.list = function (key, opts, cb) {
