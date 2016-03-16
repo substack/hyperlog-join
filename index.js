@@ -18,7 +18,13 @@ function Join (opts) {
   self.xdb = sub(opts.db, 'x', {
     valueEncoding: opts.valueEncoding || opts.log.valueEncoding || 'json'
   })
-  self.dex = hindex(self.log, self.idb, function (row, next) {
+  self.dex = hindex({
+    log: self.log,
+    db: self.idb,
+    map: mapfn
+  })
+
+  function mapfn (row, next) {
     if (row.value === undefined) return next()
     var res = self.map(row)
     if (res === undefined || (res.key === undefined && !Array.isArray(res))) {
@@ -53,7 +59,7 @@ function Join (opts) {
         }
       }
     }
-  })
+  }
   self.dex.on('error', function (err) { self.emit('error', err) })
 }
 
