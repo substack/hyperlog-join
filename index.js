@@ -26,12 +26,14 @@ function Join (opts) {
 
   function mapfn (row, next) {
     if (row.value === undefined) return next()
-    var res = self.map(row)
-    if (res === undefined || (res.key === undefined && !Array.isArray(res))) {
-      return next()
-    }
-    var batch = ops(Array.isArray(res) ? res : [res])
-    self.xdb.batch(batch, next)
+
+    self.map(row, function (res) {
+      if (res === undefined || (res.key === undefined && !Array.isArray(res))) {
+        return next()
+      }
+      var batch = ops(Array.isArray(res) ? res : [res])
+      self.xdb.batch(batch, next)
+    })
 
     function ops (rows) {
       var batch = rows.map(map)
@@ -60,6 +62,7 @@ function Join (opts) {
       }
     }
   }
+
   self.dex.on('error', function (err) { self.emit('error', err) })
 }
 

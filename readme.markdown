@@ -16,9 +16,13 @@ var log = hyperlog(memdb(), { valueEncoding: 'json' })
 var j = join({
   log: log,
   db: memdb(),
-  map: function (row) {
+  map: function (row, cb) {
     var v = row.value
-    if (v.changeset) return { key: v.changeset, value: v.id }
+    if (v.changeset) {
+      cb({ key: v.changeset, value: v.id })
+    } else {
+      cb()
+    }
   }
 })
 
@@ -52,11 +56,11 @@ var join = require('hyperlog-join')
 
 * `opts.log` - hyperlog instance
 * `opts.db` - levelup handle
-* `opts.map(row)` - mapping function to join elements with a foreign key
+* `opts.map(row, cb)` - async mapping function to join elements with a foreign key
 
 The mapping function accepts a `row` argument from the hyperlog and should
 return a single object with `key` and `value` properties or an array of
-`key`/`value` objects.
+`key`/`value` objects into the callback `cb`.
 
 To delete relations, the mapping function should return an object with
 `type='del'`, a `key` specifying the foreign key as in the put case, and a

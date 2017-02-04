@@ -9,14 +9,14 @@ test('array', function (t) {
   var j = join({
     log: log,
     db: memdb(),
-    map: function (row) {
+    map: function (row, cb) {
       var v = row.value
       var ops = []
       if (v.changeset) {
         ops.push({ key: 'changeset!' + v.changeset, value: v.id })
       }
       ops.push({ key: 'type!' + v.type, value: v.id })
-      return ops
+      cb(ops)
     }
   })
   log.append({ id: 'A', type: 'changeset', tags: { comment: 'whatever' } })

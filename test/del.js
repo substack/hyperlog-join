@@ -9,16 +9,17 @@ test('del', function (t) {
   var j = join({
     log: log,
     db: memdb(),
-    map: function (row) {
+    map: function (row, cb) {
       var v = row.value
       if (v.del) {
-        return {
+        return cb({
           type: 'del',
           rowKey: v.key,
           key: v.changeset
-        }
+        })
       }
-      if (v.changeset) return { key: v.changeset, value: v.id }
+      if (v.changeset) return cb({ key: v.changeset, value: v.id })
+      else cb()
     }
   })
   log.append({ id: 'A', type: 'changeset', tags: { comment: 'whatever' } })
