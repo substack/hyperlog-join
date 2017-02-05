@@ -27,7 +27,8 @@ function Join (opts) {
   function mapfn (row, next) {
     if (row.value === undefined) return next()
 
-    self.map(row, function (res) {
+    self.map(row, function (err, res) {
+      if (err) return next(err)
       if (res === undefined || (res.key === undefined && !Array.isArray(res))) {
         return next()
       }

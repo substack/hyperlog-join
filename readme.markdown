@@ -18,11 +18,8 @@ var j = join({
   db: memdb(),
   map: function (row, cb) {
     var v = row.value
-    if (v.changeset) {
-      cb({ key: v.changeset, value: v.id })
-    } else {
-      cb()
-    }
+    if (v.changeset) cb(null, { key: v.changeset, value: v.id })
+    else cb()
   }
 })
 
@@ -60,7 +57,7 @@ var join = require('hyperlog-join')
 
 The mapping function accepts a `row` argument from the hyperlog and should
 return a single object with `key` and `value` properties or an array of
-`key`/`value` objects into the callback `cb`.
+`key`/`value` objects into the callback `cb(err, res)`.
 
 To delete relations, the mapping function should return an object with
 `type='del'`, a `key` specifying the foreign key as in the put case, and a

@@ -16,7 +16,7 @@ test('array', function (t) {
         ops.push({ key: 'changeset!' + v.changeset, value: v.id })
       }
       ops.push({ key: 'type!' + v.type, value: v.id })
-      cb(ops)
+      cb(null, ops)
     }
   })
   log.append({ id: 'A', type: 'changeset', tags: { comment: 'whatever' } })

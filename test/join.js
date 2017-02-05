@@ -11,7 +11,7 @@ test('join', function (t) {
     db: memdb(),
     map: function (row, cb) {
       var v = row.value
-      if (v.changeset) return cb({ key: v.changeset, value: v.id })
+      if (v.changeset) cb(null, { key: v.changeset, value: v.id })
       else cb()
     }
   })

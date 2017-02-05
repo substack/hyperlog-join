@@ -12,14 +12,14 @@ test('del', function (t) {
     map: function (row, cb) {
       var v = row.value
       if (v.del) {
-        return cb({
+        cb(null, {
           type: 'del',
           rowKey: v.key,
           key: v.changeset
         })
-      }
-      if (v.changeset) return cb({ key: v.changeset, value: v.id })
-      else cb()
+      } else if (v.changeset) {
+        cb(null, { key: v.changeset, value: v.id })
+      } else cb()
     }
   })
   log.append({ id: 'A', type: 'changeset', tags: { comment: 'whatever' } })
