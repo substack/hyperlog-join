@@ -52,12 +52,12 @@ function Join (opts) {
       if (r.type === 'del') {
         return {
           type: 'del',
-          key: 'h!' + Buffer(r.key).toString('hex') + '!' + r.rowKey
+          key: 'h!' + Buffer(r.key.toString()).toString('hex') + '!' + r.rowKey
         }
       } else {
         return {
           type: 'put',
-          key: 'h!' + Buffer(r.key).toString('hex') + '!' + row.key,
+          key: 'h!' + Buffer(r.key.toString()).toString('hex') + '!' + row.key,
           value: r.value
         }
       }
@@ -77,7 +77,7 @@ Join.prototype.list = function (key, opts, cb) {
   var rows = cb ? [] : null
 
   var stream = through.obj(write, end)
-  var hkey = 'h!' + Buffer(key).toString('hex')
+  var hkey = 'h!' + Buffer(key.toString()).toString('hex')
   self.dex.ready(function () {
     var r = self.xdb.createReadStream({
       gt: hkey + '!',
