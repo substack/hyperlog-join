@@ -44,6 +44,37 @@ test('array', function (t) {
         value: 'B' },
       { key: 'ee8d0c5dd3648aa51ae76e5762c307a78ec9b54aef83cb85ffc2e71aaf3313aa',
         value: 'E' }
-    ])
+    ], 'callback B')
   })
+})
+
+test('array: more than 16 items on a callback', function (t) { t.plan(2)
+  var log = hyperlog(memdb(), { valueEncoding: 'json' })
+  var j = join({
+    log: log,
+    db: memdb(),
+    map: function (row, cb) {
+      var v = row.value
+      var ops = []
+      if (v.changeset) {
+        ops.push({ key: 'changeset!' + v.changeset, value: v.id })
+      }
+      ops.push({ key: 'type!' + v.type, value: v.id })
+      cb(null, ops)
+    }
+  })
+
+  ;(function next (n) {
+    if (!n) return done()
+    n--
+
+    log.append({ id: Math.random().toString(), type: 'node', lat: Math.random(), lon: Math.random() }, next.bind(null, n))
+  })(20)
+
+  function done () {
+    j.list('type!node', function (err, nodes) {
+      t.ifError(err)
+      t.equals(nodes.length, 20)
+    })
+  }
 })
