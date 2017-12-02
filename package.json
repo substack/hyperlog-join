@@ -14,6 +14,7 @@
   "author": "substack",
   "license": "BSD",
   "dependencies": {
+    "concat-stream": "^1.6.0",
     "hyperlog-index": "^5.0.1",
     "inherits": "^2.0.1",
     "read-only-stream": "^2.0.0",

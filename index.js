@@ -4,6 +4,7 @@ var through = require('through2')
 var readonly = require('read-only-stream')
 var EventEmitter = require('events').EventEmitter
 var inherits = require('inherits')
+var concat = require('concat-stream')
 
 module.exports = Join
 inherits(Join, EventEmitter)
@@ -84,8 +85,13 @@ Join.prototype.list = function (key, opts, cb) {
       lt: hkey + '!~'
     })
     r.on('error', stream.emit.bind(stream, 'error'))
-    if (cb) r.once('error', cb)
     r.pipe(stream)
+
+    if (cb) {
+      r.once('error', cb)
+      var c = concat({encoding:'object'}, cb.bind(null, null))
+      stream.pipe(c)
+    }
   })
   return readonly(stream)
 
@@ -98,7 +104,6 @@ Join.prototype.list = function (key, opts, cb) {
     next(null, rec)
   }
   function end (next) {
-    if (cb) cb(null, rows)
     next()
   }
 }
